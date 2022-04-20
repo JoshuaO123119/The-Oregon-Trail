@@ -1,4 +1,5 @@
-import os, random
+import os
+import random
 
 os.system("title The Oregon Trail")
 
