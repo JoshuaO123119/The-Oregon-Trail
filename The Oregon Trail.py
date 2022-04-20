@@ -12,26 +12,26 @@ class main_character:
 
 # A class that has the state of health of each person in the wagon with you.
 class wagon_passengers_health_state:
-    def __init__(self, healthy_person1, healthy_person2, healthy_person3, injured_person1, injured_person2, injured_person3, diseases_person1, diseases_person2, diseases_person3, dead_person1, dead_person2, dead_person3):
+    def __init__(self, healthy_wife, healthy_mary, healthy_billy, injured_wife, injured_mary, injured_billy, diseases_wife, diseases_mary, diseases_billy, dead_wife, dead_mary, dead_billy):
         # Healthy
-        self.healthy_person1 = healthy_person1 # Wife
-        self.healthy_person2 = healthy_person2 # Little Mary
-        self.healthy_person3 = healthy_person3 # Little Billy
+        self.healthy_wife = healthy_wife # Wife
+        self.healthy_mary = healthy_mary# Little Mary
+        self.healthy_billy = healthy_billy # Little Billy
 
         # Injured
-        self.injured_person1 = injured_person1 # Wife
-        self.injured_person2 = injured_person2 # Little Mary
-        self.injured_person3 = injured_person3 # Little Billy
+        self.injured_wife = injured_wife # Wife
+        self.injured_mary = injured_mary # Little Mary
+        self.injured_billy = injured_billy # Little Billy
 
         # Has diseases
-        self.diseases_person1 = diseases_person1 # Wife
-        self.diseases_person2 = diseases_person2 # Little Mary
-        self.diseases_person3 = diseases_person3 # Little Billy
+        self.diseases_wife = diseases_wife # Wife
+        self.diseases_mary = diseases_mary # Little Mary
+        self.diseases_billy = diseases_billy # Little Billy
 
         # Dead
-        self.dead_person1 = dead_person1 # Wife
-        self.dead_person2 = dead_person2 # Little Mary
-        self.dead_person3 = dead_person3 # Little Billy
+        self.dead_wife = dead_wife # Wife
+        self.dead_mary = dead_mary # Little Mary
+        self.dead_billy = dead_billy # Little Billy
 
 # A class that helps with stats to help you with traveling to know if you should make desperate changes.
 class travel_stats:
@@ -65,7 +65,7 @@ class travel_occurances:
         self.injured_ox = injured_ox
 
 
-wagon_passengers_health_state = wagon_passengers_health_state(healthy_person1=True, healthy_person2=True, healthy_person3=True, injured_person1=False, injured_person2=False, injured_person3=False, diseases_person1="none", diseases_person2="none", diseases_person3="none", dead_person1=False, dead_person2=False, dead_person3=False)
+wagon_passengers_health_state = wagon_passengers_health_state(healthy_wife=True, healthy_mary=True, healthy_billy=True, injured_wife=False, injured_mary=False, injured_billy=False, diseases_wife="none", diseases_mary="none", diseases_billy="none", dead_wife=False, dead_mary=False, dead_billy=False)
 main_character = main_character(profession1="none", skill_sets="none", start_money=0, difficulty="none")
 travel_stats = travel_stats(health="good", pace="steady", rations="filling", distance_left=2000, in_problem=False)
 supplies = supplies(oxen=1, sets_of_clothing=0, ammunition=0, wagon_wheels=0, wagon_axles=0, wagon_tongues=0, pounds_of_food=500, money_left="unkown")
@@ -141,12 +141,15 @@ def Start_Game():
 
             if option_choice.strip() == "1":
                 def start_traveling():
+                    
+                    # Showing stats to player
                     os.system("cls clear")
                     print(f"You have {travel_stats.distance_left} miles left")
                     print(f"Your pace: {travel_stats.pace}")
                     print(f"Your Health: {travel_stats.health}")
                     print(f"Your rations: {travel_stats.rations}", end="\n\n")
 
+                    # Bad and Good event rolls
                     random_distance_roll = random.randint(10, 50)
                     good_roll = random.randint(1, 5)
                     nearby_events_roll = random.randint(1, 5)
@@ -185,72 +188,45 @@ def Start_Game():
 
                             # For the Wife
                             if injured_roll == 1:
+                                fate_roll = random.randint(1, 3)
                                 
-                                    # If Wife is healthy, then make injured
-                                    if wagon_passengers_health_state.healthy_person1:
-                                        
-                                        wagon_passengers_health_state.healthy_person1 = False
-                                        wagon_passengers_health_state.injured_person1 = True
-                                    
-                                    # If Wife is injured, then make her catch a disease
-                                    elif wagon_passengers_health_state.injured_person1:
-                                        
-                                        wagon_passengers_health_state.injured_person1 = False
-                                        wagon_passengers_health_state.diseases_person1 = True
-                                    
-                                    # If Wife alrady has diseases, then she dies
-                                    elif wagon_passengers_health_state.diseases_person1:
-                                        
-                                        wagon_passengers_health_state.diseases_person1 = False
-                                        wagon_passengers_health_state.dead_person1 = True
+                                # Do nothing
+                                if fate_roll == 1:
+                                    pass
+
+                                # Make wife injured
+                                if fate_roll == 2:
+                                    if wagon_passengers_health_state.healthy_wife:
+                                        pass
+                                
+                                # Make wife catch a disease
+                                elif fate_roll == 3:
+                                    pass
 
                             # For little Mary
                             elif injured_roll == 2:
-                                # If little Mary is healthy, then make injured
-                                if wagon_passengers_health_state.healthy_person2:
-                                    
-                                    wagon_passengers_health_state.healthy_person2 = False
-                                    wagon_passengers_health_state.injured_person2 = True
-                                
-                                # If little Mary is injured, then make her catch a disease
-                                elif wagon_passengers_health_state.injured_person1:
-                                    
-                                    wagon_passengers_health_state.injured_person2 = False
-                                    wagon_passengers_health_state.diseases_person2 = True
-                                
-                                # If little Mary alrady has diseases, then she dies
-                                elif wagon_passengers_health_state.diseases_person2:
-                                    
-                                    wagon_passengers_health_state.diseases_person2 = False
-                                    wagon_passengers_health_state.dead_person2 = True
+                               pass 
 
                             # For little Billy
                             elif injured_roll == 3:
-                                
-                                # If little Billy is healthy, then make injured
-                                if wagon_passengers_health_state.healthy_person3:
-                                    
-                                    wagon_passengers_health_state.healthy_person3 = False
-                                    wagon_passengers_health_state.injured_person3 = True
-                                
-                                # If little Billy is injured, then make her catch a disease
-                                elif wagon_passengers_health_state.injured_person3:
-                                    
-                                    wagon_passengers_health_state.injured_person3 = False
-                                    wagon_passengers_health_state.diseases_person3 = True
-                                
-                                # If little Billy alrady has diseases, then she dies
-                                elif wagon_passengers_health_state.diseases_person3:
-                                    
-                                    wagon_passengers_health_state.diseases_person3 = False
-                                    wagon_passengers_health_state.dead_person3 = True
-
-
+                                pass
 
                         elif bad_roll2 == 4:
                             # Someone catches a disease | If already diseased, then die
-                            pass
-                        
+                            disease_roll = random.randint(1, 4)
+
+                            if disease_roll == 1:
+                                # Wife
+                                pass
+                            elif disease_roll == 2:
+                                # Mary
+                                pass
+                            elif disease_roll == 3:
+                                # Billy
+                                pass
+                            elif disease_roll == 4:
+                                # Do nothing
+                                pass
                         elif bad_roll2 == 5:
                             # Wade across a river | Have a chance to sucessfully do it, or lose an item
                             pass
@@ -901,35 +877,38 @@ def Start_Game():
                 os.system("cls clear")
 
                 # Person 1 (Wife)
-                if wagon_passengers_health_state.healthy_person1:
+                if wagon_passengers_health_state.healthy_wife:
                     print("Wife: Healthy")
-                elif wagon_passengers_health_state.injured_person1:
+                elif wagon_passengers_health_state.injured_wife:
                     print("Wife: Injured")
-                elif wagon_passengers_health_state.diseases_person1:
+                elif wagon_passengers_health_state.diseases_wife:
                     print("Wife: Has a disease")
-                elif wagon_passengers_health_state.dead_person1:
+                elif wagon_passengers_health_state.dead_wife:
                     print("Wife: Dead")
                 
                 # Person 2 (Little Mary)
-                if wagon_passengers_health_state.healthy_person2:
+                if wagon_passengers_health_state.healthy_mary:
                     print("Little Mary: Healthy")
-                elif wagon_passengers_health_state.injured_person2:
+                elif wagon_passengers_health_state.injured_mary:
                     print("Little Mary: Injured")
-                elif wagon_passengers_health_state.diseases_person2:
+                elif wagon_passengers_health_state.diseases_mary:
                     print("Little Mary: Has a disease")
-                elif wagon_passengers_health_state.dead_person2:
+                elif wagon_passengers_health_state.dead_mary:
                     print("Little Mary: Dead")
                 
                 # Person 3 (Little Billy)
-                if wagon_passengers_health_state.healthy_person3:
+                if wagon_passengers_health_state.healthy_billy:
                     print("Little Billy: Healthy", end="\n\n")
-                elif wagon_passengers_health_state.injured_person3:
+                elif wagon_passengers_health_state.injured_billy:
                     print("Little Billy: Injured", end="\n\n")
-                elif wagon_passengers_health_state.diseases_person3:
+                elif wagon_passengers_health_state.diseases_billy:
                     print("Little Billy: Has a disease", end="\n\n")
-                elif wagon_passengers_health_state.dead_person3:
+                elif wagon_passengers_health_state.dead_billy:
                     print("Little Billy: Dead", end="\n\n")
                 
                 input("Type something to exit: ")
     
     Choose_Profession()
+
+if __name__ == "__main__":
+    Start_Game()
