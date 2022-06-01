@@ -5,42 +5,27 @@ os.system("title The Oregon Trail")
 
 # A class that has info about the character you play so you can get started.
 class main_character:
-    def __init__(self, profession1, skill_sets, start_money, difficulty):
+    def __init__(self, profession1, skill_sets, start_money, difficulty, health, days_to_heal):
         self.profession = profession1
         self.skill_sets = skill_sets
         self.start_money = start_money
         self.difficulty = difficulty
-
-# A class that has the state of health of each person in the wagon with you.
-class wagon_passengers_health_state:
-    def __init__(self, healthy_wife, healthy_mary, healthy_billy, injured_wife, injured_mary, injured_billy, diseases_wife, diseases_mary, diseases_billy, dead_wife, dead_mary, dead_billy):
-        # Healthy
-        self.healthy_wife = healthy_wife # Wife
-        self.healthy_mary = healthy_mary# Little Mary
-        self.healthy_billy = healthy_billy # Little Billy
-
-        # Injured
-        self.injured_wife = injured_wife # Wife
-        self.injured_mary = injured_mary # Little Mary
-        self.injured_billy = injured_billy # Little Billy
-
-        # Has diseases
-        self.diseases_wife = diseases_wife # Wife
-        self.diseases_mary = diseases_mary # Little Mary
-        self.diseases_billy = diseases_billy # Little Billy
-
-        # Dead
-        self.dead_wife = dead_wife # Wife
-        self.dead_mary = dead_mary # Little Mary
-        self.dead_billy = dead_billy # Little Billy
+        # Three stages of health:
+        # healthy, sick, dead
+        self.health = health
+        self.days_to_heal = days_to_heal
 
 # A class that helps with stats to help you with traveling to know if you should make desperate changes.
 class travel_stats:
-    def __init__(self, pace, rations, distance_left, in_problem):
+    def __init__(self, pace, rations, distance_left, fatigued):
         self.pace = pace
         self.rations = rations
         self.distance_left = distance_left
-        self.in_problem = in_problem
+        # Fatigued = 0 : Not tired
+        # Fatigued = 7 : Needs sleep or sick
+        # Fatigued = 8 : Sick, desperately needs sleep
+        # Fatigued = 9 : Dies
+        self.fatigued = fatigued
 # A class that shows information on what items you have and how much. 
 class supplies:
     def __init__(self, oxen, sets_of_clothing, ammunition, wagon_wheels, wagon_axles, wagon_tongues, pounds_of_food, money_left):
@@ -66,9 +51,8 @@ class travel_occurances:
         self.forest_nearby = forest_nearby
 
 
-wagon_passengers_health_state = wagon_passengers_health_state(healthy_wife=True, healthy_mary=True, healthy_billy=True, injured_wife=False, injured_mary=False, injured_billy=False, diseases_wife="none", diseases_mary="none", diseases_billy="none", dead_wife=False, dead_mary=False, dead_billy=False)
-main_character = main_character(profession1="none", skill_sets="none", start_money=0, difficulty="none")
-travel_stats = travel_stats(pace="steady", rations="filling", distance_left=2000, in_problem=False)
+main_character = main_character(profession1="none", skill_sets="none", start_money=0, difficulty="none", health="healthy", days_to_heal=0)
+travel_stats = travel_stats(pace="steady", rations="filling", distance_left=2000, fatigued=0)
 supplies = supplies(oxen=1, sets_of_clothing=0, ammunition=0, wagon_wheels=0, wagon_axles=0, wagon_tongues=0, pounds_of_food=500, money_left="unkown")
 travel_occurances = travel_occurances(traveler_nearby=False, forest_nearby=False, shop_nearby=False, broken_wagon_wheels=False, broken_wagon_axles=False, broken_wagon_tongues=False, injured_ox=False)
 
@@ -137,28 +121,52 @@ def Start_Game():
         
         while game_running:
             os.system("cls clear")
-            # Quick Find #6
-            print(f"Heatlh: Still a work in progress!\nPace: {travel_stats.pace}\nRations: {travel_stats.rations}\n\nYou may:\n\n\t1: Continue on trail\n\t2: Check Supplies\n\t3: Change Pace\n\t4: Change food rations\n\t5: Stop to rest\n\t6: Attempt to trade\n\t7: Buy Supplies\n")
+            print(f"Health: {main_character.health}\nPace: {travel_stats.pace}\nRations: {travel_stats.rations}\nFatigue Level: {travel_stats.fatigued}\n\nYou may:\n\n\t1: Continue on trail\n\t2: Check Supplies\n\t3: Change Pace\n\t4: Change food rations\n\t5: Stop to rest\n\t6: Attempt to trade\n\t7: Buy Supplies\n")
             option_choice = input("What is your choice: ")
 
             if option_choice.strip() == "1":
                 def start_traveling():
+                    random_distance_roll = random.randint(10, 50)
+                    
+                    if travel_stats.distance_left > random_distance_roll:
+                        travel_stats.distance_left -= random_distance_roll
+                        travel_stats.fatigued += 1
+                        
+                        if travel_stats.fatigued == 7:
+                            print("You should rest. If you continue, you will get sick!")
+                            input("Type something to continue: ")
+                        elif travel_stats.fatigued == 8:
+                            print("You got sick! Rest or you may die!")
+                            main_character.health = "sick"
+                            main_character.days_to_heal = 2
+                            input("Type something to continue: ")
+                        elif travel_stats.fatigued == 9:
+                            print("You died of sleep deprivation!")
+                            print("GAME OVER")
+                            input("Type something to continue: ")
+                            quit()
+                        
+                    elif travel_stats.distance_left <= random_distance_roll:
+                        print("You beat the game! You walked to your destination!")
+                        print("YOU WIN!!!")
+                        input("Type something to continue: ")
+                        quit()
                     
                     # Showing stats to player
                     os.system("cls clear")
                     print(f"You have {travel_stats.distance_left} miles left")
                     print(f"Your pace: {travel_stats.pace}")
-                    # Quick Find #6
-                    print(f"Your Health: Needs work! ")
-                    print(f"Your rations: {travel_stats.rations}", end="\n\n")
+                    print(f"Your Health: {main_character.health}")
+                    print(f"Your rations: {travel_stats.rations}")
+                    print(f"Fatigue Level: {travel_stats.fatigued}", end="\n\n")
                     input("Type something to continue: ")
 
                     # Bad and Good event rolls
-                    random_distance_roll = random.randint(10, 50)
                     good_roll = random.randint(1, 5)
-                    nearby_events_roll = random.randint(1, 5)
-                    bad_roll1 = random.randint(1, 10)
+                    nearby_events_roll = random.randint(1, 3)
+                    bad_roll1 = random.randint(1, 5)
 
+                    
 
                     if good_roll == 1:
                         print("You found a traveler who is willing to sell some items to you!")
@@ -181,14 +189,10 @@ def Start_Game():
                                 travel_occurances.forest_nearby = True
 
                     if bad_roll1 == 1:
-                        bad_roll2 = random.randint(1, 5)
+                        bad_roll2 = random.randint(2, 5)
                         
-                        if bad_roll2 == 1:
-                            # Injured Ox
-                            # Quick Find #2
-                            pass
                         
-                        elif bad_roll2 == 2:
+                        if bad_roll2 == 2:
                             # Lose some food
                             lose_food_roll = random.randint(10, 30)
                             
@@ -200,24 +204,131 @@ def Start_Game():
                             input("Type something to continue: ")
                         
                         elif bad_roll2 == 3:
-                            # Someone gets injured | If already injured, then catch disease
-                            # Quick Find #7
-                            injured_roll = random.randint(1, 3)
-
+                            # Someone gets sick
+                            if main_character.health == "healthy":
+                                main_character.health = "sick"
+                                main_character.days_to_heal = 3
+                            # If already sick, die
+                            else:
+                                print("You died of sickness!")
+                                print("GAME OVER!")
+                                input("Type something to continue: ")
+                                quit()
+                        
                         elif bad_roll2 == 4:
-                            # Someone catches a disease | If already diseased, then die
-                            # Quick Find #8
-                            disease_roll = random.randint(1, 4)
+                            # A part on the wagon breaks
+                            # Random roll to decide which part braeks
+                            part_break = random.randint(1, 3)
+                            
+                            # Wagon wheels break
+                            if part_break == 1:
+                                print("One of your wagon wheels broke!")
+                                if supplies.wagon_wheels >= 1:
+                                    supplies.wagon_wheels -= 1
+                                    print("You replaced one of your wheels with the broken one!")
+                                    print("You continue along the trail.")
+                                    input("Type something to continue: ")
+                                elif supplies.wagon_wheels == 0:
+                                    travel_occurances.broken_wagon_wheels = True
+                                    print("You don't have enough wagon wheels to replace the broken one!")
+                                    print("You can wait for a traveler nearby to pass!")
+                                    input("Type something to continue: ")
+                            
+                            # Wagon tongues break
+                            elif part_break == 2:
+                                print("one of your wagon tongues broke!")
+                                if supplies.wagon_tongues >= 1:
+                                    supplies.wagon_tongues -= 1
+                                    print("You replaced one of your wagon tongues with the broken one!")
+                                    print("You continue along the trail.")
+                                    input("Type something to continue: ")
+                                elif supplies.wagon_tongues == 0:
+                                    travel_occurances.broken_wagon_wheels = True
+                                    print("You don't have enough wagon tongues to replace the broken one!")
+                                    print("You can wait for a traveler nearby to pass!")
+                                    input("Type something to continue: ")
+                            
+                            # Wagon axles break
+                            elif part_break == 3:
+                                print("one of your wagon axles broke!")
+                                if supplies.wagon_axles >= 1:
+                                    supplies.wagon_axles -= 1
+                                    print("You replaced one of your wagon axles with the broken one!")
+                                    print("You continue along the trail.")
+                                    input("Type something to continue: ")
+                                elif supplies.wagon_axles == 0:
+                                    travel_occurances.broken_wagon_wheels = True
+                                    print("You don't have enough wagon axles to replace the broken one!")
+                                    print("You can wait for a traveler nearby to pass!")
+                                    input("Type something to continue: ")
+                                    
 
                         elif bad_roll2 == 5:
                             # Wade across a river | Have a chance to sucessfully do it, or lose an item
-                            # Quick Find #9
-                            pass
-                if travel_occurances.broken_wagon_wheels == False and travel_occurances.broken_wagon_axles == False and travel_occurances.broken_wagon_tongues == False and travel_occurances.injured_ox == False:
-                    start_traveling()
+                            os.system("cls clear")
+                            print("You run into a river! You must wade across it!")
+                            input("Type something to continue: ")
+                            # A roll whether they pass through it successfully or not
+                            success_or_failure = random.randint(1, 2)
+                            
+                            if success_or_failure == 1:
+                                # Successfully passes without anything bad happening
+                                print("You successfully passed the river!")
+                                input("Type something to continue: ")
+                            elif success_or_failure == 2:
+                                # Fails to pass without losing something
+                                print("You passed the river, but you didn't do it without losing something!")
+                                # A roll to see what they lost
+                                random_loss = random.randint(1, 3)
+                                if random_loss == 1:
+                                    # Loss of Ammunition
+                                    # A roll on how much they lost
+                                    ammunition_lost = random.randint(1, 3)
+                                    # Make sure they don't lose more than they have
+                                    if ammunition_lost >= supplies.ammunition:
+                                        supplies.ammunition = 0
+                                        print("You lost all of your ammunition!")
+                                        input("Type something to continue: ")
+                                    else:
+                                        supplies.ammunition -= ammunition_lost
+                                        print(f"You lost {ammunition_lost} boxes of ammunition!")
+                                        print(f"You have {supplies.ammunition} boxes of ammunition left!")
+                                        input("Type something to continue: ")
+                                    
+                                elif random_loss == 2:
+                                    # Loss of Food
+                                    # A roll on how much they lost
+                                    food_lost = random.randint(50, 100)
+                                    # Make sure they don't lose more than they have
+                                    if food_lost >= supplies.pounds_of_food:
+                                        supplies.pounds_of_food = 0
+                                        print("You lost all of your food!")
+                                        input("Type something to continue: ")
+                                    else:
+                                        supplies.pounds_of_food -= food_lost
+                                        print(f"You lost {food_lost} pounds of food!")
+                                        print(f"You have {supplies.pounds_of_food} pounds of food left!")
+                                        input("Type something to continue: ")
+                                        
+                                elif random_loss == 3:
+                                    # Loss of Money
+                                    # A roll on how much they lost
+                                    money_lost = random.randint(10, 50)
+                                    # Make sure they don't lose more than they have
+                                    if money_lost >= supplies.money_left:
+                                        supplies.money_left = 0
+                                        print("You lost all of your money!")
+                                        input("Type something to continue: ")
+                                    else:
+                                        supplies.money_left -= money_lost
+                                        print(f"You lost ${money_lost}!")
+                                        print(f"You still have ${supplies.money_left} left!")
+                                        input("Type something to continue: ")
+                            
+                if travel_occurances.broken_wagon_wheels == False and travel_occurances.broken_wagon_axles == False and travel_occurances.broken_wagon_tongues == False:
+                        start_traveling()
                 else:
                     # If a part of their wagon broke
-                    # Quick Find #1
                     if travel_occurances.broken_wagon_wheels == True:
                         if supplies.wagon_wheels >= 1:
                             supplies.wagon_wheels -= 1
@@ -231,7 +342,7 @@ def Start_Game():
                             print("Keep trying until a traveler comes nearby!", end="\n\n")
 
                             if new_traveler == 1:
-                                print("A travler comes nearby and greets you", end="\n\n")
+                                print("A traveler comes nearby and greets you", end="\n\n")
                                 travel_occurances.traveler_nearby = True
                             
                             else:
@@ -342,7 +453,30 @@ def Start_Game():
             elif option_choice.strip() == "5":
                 # Stop to rest: Check "Rest Options.png" for more details
                 os.system("cls clear")
-                print("Option 5")
+                if main_character.days_to_heal >= 1:
+                    if main_character.days_to_heal > 1:
+                        main_character.days_to_heal -= 1
+                        print("You healed yourself by resting!")
+                        print(f"You have {main_character.days_to_heal} days left to heal until you're healthy")
+                        input("Type something to continue: ")
+                    elif main_character.days_to_heal == 1:
+                        main_character.days_to_heal == 0
+                        main_character.health = "healthy"
+                        print(f"You healed yourself fully, you're now healthy!")
+                        input("Type something to continue: ")
+                if travel_occurances.injured_ox == True:
+                    travel_occurances.injured_ox = False
+                    print("Your ox have healed!")
+                    input("Type something to continue: ")
+                if travel_stats.fatigued >= 2:
+                    travel_stats.fatigued -= 2
+                    print(f"Your fatigue level is now {travel_stats.fatigued}")
+                    input("Type something to continue: ")
+                elif travel_stats.fatigued <=2:
+                    travel_stats.fatigued = 0
+                    print(f"Your fatigue level is now {travel_stats.fatigued}")
+                    input("Type something to continue: ")
+
             elif option_choice.strip() == "6":
                 # Attempt to trade: Check "Attempt to Trade Options.png" for more details
                 os.system("cls clear")
@@ -897,41 +1031,6 @@ def Start_Game():
                         input("Please type something to continue: ")
 
                 buy_supplies_option()
-            elif option_choice.strip() == "8":
-                # Check health states of members
-                os.system("cls clear")
-
-                # Person 1 (Wife)
-                if wagon_passengers_health_state.healthy_wife:
-                    print("Wife: Healthy")
-                elif wagon_passengers_health_state.injured_wife:
-                    print("Wife: Injured")
-                elif wagon_passengers_health_state.diseases_wife:
-                    print("Wife: Has a disease")
-                elif wagon_passengers_health_state.dead_wife:
-                    print("Wife: Dead")
-                
-                # Person 2 (Little Mary)
-                if wagon_passengers_health_state.healthy_mary:
-                    print("Little Mary: Healthy")
-                elif wagon_passengers_health_state.injured_mary:
-                    print("Little Mary: Injured")
-                elif wagon_passengers_health_state.diseases_mary:
-                    print("Little Mary: Has a disease")
-                elif wagon_passengers_health_state.dead_mary:
-                    print("Little Mary: Dead")
-                
-                # Person 3 (Little Billy)
-                if wagon_passengers_health_state.healthy_billy:
-                    print("Little Billy: Healthy", end="\n\n")
-                elif wagon_passengers_health_state.injured_billy:
-                    print("Little Billy: Injured", end="\n\n")
-                elif wagon_passengers_health_state.diseases_billy:
-                    print("Little Billy: Has a disease", end="\n\n")
-                elif wagon_passengers_health_state.dead_billy:
-                    print("Little Billy: Dead", end="\n\n")
-                
-                input("Type something to exit: ")
     
     Choose_Profession()
 
