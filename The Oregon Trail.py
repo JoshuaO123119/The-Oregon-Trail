@@ -5,7 +5,7 @@ os.system("title The Oregon Trail")
 
 # A class that has info about the character you play so you can get started.
 class main_character:
-    def __init__(self, profession1, skill_sets, start_money, difficulty, health, days_to_heal):
+    def __init__(self, profession1, skill_sets, start_money, difficulty, health, days_to_heal, discount_perk):
         self.profession = profession1
         self.skill_sets = skill_sets
         self.start_money = start_money
@@ -14,6 +14,7 @@ class main_character:
         # healthy, sick, dead
         self.health = health
         self.days_to_heal = days_to_heal
+        self.discount_perk = discount_perk
 
 # A class that helps with stats to help you with traveling to know if you should make desperate changes.
 class travel_stats:
@@ -51,7 +52,7 @@ class travel_occurances:
         self.forest_nearby = forest_nearby
 
 
-main_character = main_character(profession1="none", skill_sets="none", start_money=0, difficulty="none", health="healthy", days_to_heal=0)
+main_character = main_character(profession1="none", skill_sets="none", start_money=0, difficulty="none", health="healthy", days_to_heal=0, discount_perk=False)
 travel_stats = travel_stats(pace="steady", rations="filling", distance_left=2000, fatigued=0)
 supplies = supplies(oxen=1, sets_of_clothing=0, ammunition=0, wagon_wheels=0, wagon_axles=0, wagon_tongues=0, pounds_of_food=500, money_left="unkown")
 travel_occurances = travel_occurances(traveler_nearby=False, forest_nearby=False, shop_nearby=False, broken_wagon_wheels=False, broken_wagon_axles=False, broken_wagon_tongues=False, injured_ox=False)
@@ -77,20 +78,23 @@ def Start_Game():
                 main_character.start_money = 1600
                 main_character.difficulty = "Easy"
                 travel_occurances.shop_nearby = True
+                main_character.discount_perk = True
                 stats_question()
             elif profession_choice.lower().strip() == "carpenter":
                 main_character.profession = "Carpenter"
-                main_character.skill_sets = "Higher chance of successfully fixing something"
+                main_character.skill_sets = "Lower chance of things on your wagon breaking"
                 main_character.start_money = 800
                 main_character.difficulty = "Medium"
                 travel_occurances.shop_nearby = True
+                main_character.discount_perk = False
                 stats_question()
             elif profession_choice.lower().strip() == "farmer":
                 main_character.profession = "Farmer"
-                main_character.skill_sets = "Higher chance of killing a bigger animal while hunting"
+                main_character.skill_sets = "Find more food while out hunting in nearby forests"
                 main_character.start_money = 400
                 main_character.difficulty = "Hard"
                 travel_occurances.shop_nearby = True
+                main_character.discount_perk = False
                 stats_question()
             else:
                 print("That isn't a profession! Please type something to try again!", end="\n\n")
@@ -126,6 +130,7 @@ def Start_Game():
 
             if option_choice.strip() == "1":
                 def start_traveling():
+                    
                     # They started traveling so make sure they can't trade or go to stores
                     # that they left while continuing on the trail
                     travel_occurances.shop_nearby = False
@@ -157,11 +162,11 @@ def Start_Game():
                             print("Hint: To lower the chance of getting sick this way, consider changing your pace")
                             input("Type something to continue: ")
                     
-
-                    
                     if travel_stats.distance_left > random_distance_roll:
                         travel_stats.distance_left -= random_distance_roll
                         travel_stats.fatigued += 1
+                        # Let the user know something is happening
+                        print(f"You continue down the trail and travel {random_distance_roll} miles...")
                         
                         if travel_stats.fatigued == 7:
                             print("You should rest. If you continue, you will get sick!")
@@ -197,6 +202,7 @@ def Start_Game():
                     nearby_events_roll = random.randint(1, 3)
                     bad_roll1 = random.randint(1, 5)
 
+                    
 
                     # Lose food as you travel
                     if travel_stats.rations == "filling":
@@ -242,9 +248,15 @@ def Start_Game():
                             input("Type something to continue: ")
                             quit()
                     
+                    # Warns player if their food is getting low
+                    if supplies.pounds_of_food <= 200:
+                        print("Your food supply is getting low!")
+                        print(f"You have {supplies.pounds_of_food} pounds of food left!")
+                        input("Type something to continue: ")
+                    
                     
                     if good_roll == 1:
-                        print("You found a traveler who is willing to sell some items to you!")
+                        print("You found a nearby traveler who is willing to sell some items to you!")
                         travel_occurances.traveler_nearby = True
                         input("Type something to continue: ")
                     
@@ -255,17 +267,20 @@ def Start_Game():
                         nearby = random.randint(1, 5)
                         
                         if nearby == 1:
-                            # Choose wether it's a traveler or forest to hunt in
-                            travelerForestRoll = random.randint(1, 2)
+                            # Choose wether it's a traveler or forest to hunt in, and if unlucky nothing will happen
+                            travelerForestRoll = random.randint(1, 3)
                             if travelerForestRoll == 1:
                                 # Town
                                 travel_occurances.traveler_nearby = True
-                            else:
+                                print("You found a nearby traveler who is willing to sell some items to you!")
+                            elif travelerForestRoll == 2:
                                 # Forest
                                 travel_occurances.forest_nearby = True
                                 print("There's a forest nearby!")
                                 print("You can stop to hunt and use a day, or you can continue on the trail...")
                                 input("Type something to continue: ")
+                            
+                            
 
                     if bad_roll1 == 1:
                         bad_roll2 = random.randint(2, 5)
@@ -287,7 +302,8 @@ def Start_Game():
                             if main_character.health == "healthy":
                                 main_character.health = "sick"
                                 main_character.days_to_heal += 3
-                            # If already sick, die
+                                print("You got sick while traveling!")
+                                input("Type something to continue: ")
                             else:
                                 print("You died of sickness!")
                                 print("GAME OVER!")
@@ -296,7 +312,19 @@ def Start_Game():
                         
                         elif bad_roll2 == 4:
                             # A part on the wagon breaks
-                            # Random roll to decide which part braeks
+                            # Random roll to decide which part breaks
+                            
+                            # If your profession is a carpenter, lower chance of a part breaking
+                            if main_character.profession == "Carpenter":
+                                carpenter_helpPerk_roll = random.randint(1, 2)
+                                if carpenter_helpPerk_roll == 1:
+                                    # Don't have a part break
+                                    print("You notice that one of your parts on the wagon was broken.")
+                                    print("However, you fix it up as if nothing happened.")
+                                    input("Type something to continue: ")
+                                    # Skips everything else and continues the game
+                                    run_game()
+                                
                             part_break = random.randint(1, 3)
                             
                             # Wagon wheels break
@@ -495,9 +523,10 @@ def Start_Game():
                         os.system("cls clear")
                         print("Steady -- You travel about 8 hours a day, taking frequent rests. You take care not to get too tired.\n\nStrenuous -- You travel about 12 hours a day, starting just after sunrise and stopping shortly before sunset. you stop to rest only when necessary. You finish each day feeling very tired.\n\nGrueling -- You travel about 16 hours a day, starting before sunrise and continuing until dark. You almost never stop to rest. You do not get enough sleep at night. You finish each day feeling absolutely exhausted, and your health suffers.")
                         input("\nType something to continue: ")
+                        change_pace_def()
                     
                     elif change_pace.strip() == "5":
-                        # For exiting
+                        # For exiting the shop | IMPORTANT DON'T DELETE
                         pass
                     
                     else:
@@ -510,7 +539,7 @@ def Start_Game():
                 # Change food rations: Check "Change Food Rations.png" for more details
                 def change_food_rations_def():
                     os.system("cls clear")
-                    print("The amount of food the people in your party eat each day can change. These amounts are:\n\n\t1. filling - meals are large and generous.\n\n\t2. meager - meals are small, but adequate.\n\n\t3. bare bones - meals are very small; everyone stays hungry.")
+                    print("The amount of food the people in your party eat each day can change. These amounts are:\n\n\t1. filling - meals are adequate.\n\n\t2. meager - meals are small, but have a chance of getting sick.\n\n\t3. bare bones - meals are very small; you stay hungry and have a higher chance of getting sick.")
                     food_rations_option = input("\nWhat is your choice: ")
 
                     if food_rations_option.lower().strip() == "filling" or food_rations_option.lower().strip() == "1":
@@ -581,20 +610,13 @@ def Start_Game():
                         if travel_occurances.broken_wagon_axles:
                             # Makes traveler sell wagon tongues
                             which_trade = 6
-                    if main_character.profession != "Banker":
-                        discount_roll = random.randint(1, 5)
-                        if discount_roll == 1:
-                            discount = True
                     
                     # If player is banker, then they get lower trade costs
-                    elif main_character.profession == "Banker":
-                        discount = True
-
                     if which_trade == 1:
                         # Money for ox
                         
                         os.system("cls clear")
-                        if discount != True:
+                        if main_character.discount_perk != True:
                             def buy_ox_traveler():
                                 print("I will sell you an ox for 20.00 each", end="\n\n")
                                 how_many = input("How many do you want to buy?: ")
@@ -618,10 +640,10 @@ def Start_Game():
 
                             buy_ox_traveler()
 
-                        elif discount:
+                        elif main_character.discount_perk:
                             def buy_ox_traveler_discount():
                                 print("I will sell each ox with a discount!")
-                                print("I will sell you an ox for 16.00", end="\n\n")
+                                print("I will sell you an ox for 16.00 each", end="\n\n")
                                 how_many = input("How many do you want to buy?: ")
 
                                 try:
@@ -649,7 +671,7 @@ def Start_Game():
                         # Money for sets of clothing
                         
                         os.system("cls clear")
-                        if discount != True:
+                        if main_character.discount_perk != True:
                             def buy_clothes_traveler():
                                 print("I will sell you sets of clothes for 10.00 each", end="\n\n")
                                 how_many = input("How many do you want to buy?: ")
@@ -672,10 +694,10 @@ def Start_Game():
                                     buy_clothes_traveler
 
                             buy_clothes_traveler()
-                        elif discount:
+                        elif main_character.discount_perk:
                             def buy_clothes_traveler_discount():
                                 print("I will sell you set of clothes with a discount!")
-                                print("I will sell you a set of clothes for 8.00", end="\n\n")
+                                print("I will sell you a set of clothes for 8.00 each", end="\n\n")
                                 how_many = input("How many do you want to buy?: ")
 
                                 try:
@@ -700,7 +722,7 @@ def Start_Game():
                         #Money for bullets
                         
                         os.system("cls clear")
-                        if discount != True:
+                        if main_character.discount_perk != True:
                             def buy_bullets_traveler():
                                 print("I will sell you boxes of ammunition for 2.00 each", end="\n\n")
                                 how_many = input("How many do you want to buy?: ")
@@ -723,10 +745,10 @@ def Start_Game():
                                     buy_bullets_traveler()
 
                             buy_bullets_traveler()
-                        elif discount:
+                        elif main_character.discount_perk:
                             def buy_bullets_traveler_discount():
                                 print("I will sell you boxes of ammunition with a discount!")
-                                print("I will sell you a box of ammunition for 1.00", end="\n\n")
+                                print("I will sell you a box of ammunition for 1.00 each", end="\n\n")
                                 how_many = input("How many do you want to buy?: ")
 
                                 try:
@@ -752,7 +774,7 @@ def Start_Game():
                         #Money for wagon Wheels
                         
                         os.system("cls clear")
-                        if discount != True:
+                        if main_character.discount_perk != True:
                             def buy_wagon_wheels_traveler():
                                 print("I will sell you wagon wheels for 10.00 each", end="\n\n")
                                 how_many = input("How many do you want to buy?: ")
@@ -775,10 +797,10 @@ def Start_Game():
                                     buy_wagon_wheels_traveler()
 
                             buy_wagon_wheels_traveler()
-                        elif discount:
+                        elif main_character.discount_perk:
                             def buy_wagon_wheels_traveler_discount():
                                 print("I will sell you wagon wheels with a discount!")
-                                print("I will sell you wagon wheels for 8.00", end="\n\n")
+                                print("I will sell you wagon wheels for 8.00 each", end="\n\n")
                                 how_many = input("How many do you want to buy?: ")
 
                                 try:
@@ -803,7 +825,7 @@ def Start_Game():
                         #Money for wagon axles
                         
                         os.system("cls clear")
-                        if discount != True:
+                        if main_character.discount_perk != True:
                             def buy_wagon_axles_traveler():
                                 print("I will sell you wagon axles for 10.00 each", end="\n\n")
                                 how_many = input("How many do you want to buy?: ")
@@ -826,10 +848,10 @@ def Start_Game():
                                     buy_wagon_axles_traveler()
 
                             buy_wagon_axles_traveler()
-                        elif discount:
+                        elif main_character.discount_perk:
                             def buy_wagon_axles_traveler_discount():
                                 print("I will sell you wagon axles with a discount!")
-                                print("I will sell you wagon axles for 8.00", end="\n\n")
+                                print("I will sell you wagon axles for 8.00 each", end="\n\n")
                                 how_many = input("How many do you want to buy?: ")
 
                                 try:
@@ -854,7 +876,7 @@ def Start_Game():
                         #Money for wagon tongues
                         
                         os.system("cls clear")
-                        if discount != True:
+                        if main_character.discount_perk != True:
                             def buy_wagon_tongues_traveler():
                                 print("I will sell you wagon tounges for 10.00 each", end="\n\n")
                                 how_many = input("How many do you want to buy?: ")
@@ -877,10 +899,10 @@ def Start_Game():
                                     buy_wagon_tongues_traveler()
 
                             buy_wagon_tongues_traveler()
-                        elif discount:
+                        elif main_character.discount_perk:
                             def buy_wagon_tongues_traveler_discount():
                                 print("I will sell you wagon axles with a discount!")
-                                print("I will sell you wagon axles for 8.00", end="\n\n")
+                                print("I will sell you wagon axles for 8.00 each", end="\n\n")
                                 how_many = input("How many do you want to buy?: ")
 
                                 try:
@@ -905,7 +927,7 @@ def Start_Game():
                         #Money for pounds of food
                         
                         os.system("cls clear")
-                        if discount != True:
+                        if main_character.discount_perk != True:
                             def buy_food_traveler():
                                 print("I will sell you pounds of food for 0.20 each", end="\n\n")
                                 how_many = input("How many do you want to buy?: ")
@@ -928,10 +950,10 @@ def Start_Game():
                                     buy_food_traveler()
 
                             buy_food_traveler()
-                        elif discount:
+                        elif main_character.discount_perk:
                             def buy_food_traveler_discount():
                                 print("I will sell you pounds of food with a discount!")
-                                print("I will sell you pounds of food for 0.10", end="\n\n")
+                                print("I will sell you pounds of food for 0.10 each", end="\n\n")
                                 how_many = input("How many do you want to buy?: ")
 
                                 try:
@@ -1122,7 +1144,7 @@ def Start_Game():
                             buy_supplies_option()
                         elif buy_supplies_number.lower().strip() == "8":
                             # Leave store
-                            pass
+                            run_game()
                         else:
                             buy_supplies_option()
                     elif travel_occurances.shop_nearby == False:
@@ -1141,7 +1163,14 @@ def Start_Game():
                     if supplies.ammunition > 0:
                         print("You go hunting for animals nearby...")
                         # Come back with random amount of food
-                        hunting_food = random.randint(50, 100)
+                        if main_character.profession != "Farmer":
+                            hunting_food = random.randint(50, 100)
+                        # If they are a farmer, they come back with more food, (Profession Perk)
+                        else:
+                            hunting_food = random.randint(50, 100)
+                            farmer_perk = random.randint(15, 50)
+                            supplies.pounds_of_food += farmer_perk
+                        
                         supplies.pounds_of_food += hunting_food
                         # Lose a random amount of ammunition
                         ammunition_lost = random.randint(5, 25)
