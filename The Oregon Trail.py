@@ -24,7 +24,7 @@ class travel_stats:
         # Fatigued = 0 : Not tired
         # Fatigued = 7 : Needs sleep or sick
         # Fatigued = 8 : Sick, desperately needs sleep
-        # Fatigued = 9 : Dies
+        # Fatigued = 11 : Dies
         self.fatigued = fatigued
 # A class that shows information on what items you have and how much. 
 class supplies:
@@ -121,12 +121,43 @@ def Start_Game():
         
         while game_running:
             os.system("cls clear")
-            print(f"Health: {main_character.health}\nPace: {travel_stats.pace}\nRations: {travel_stats.rations}\nFatigue Level: {travel_stats.fatigued}\n\nYou may:\n\n\t1: Continue on trail\n\t2: Check Supplies\n\t3: Change Pace\n\t4: Change food rations\n\t5: Stop to rest\n\t6: Attempt to trade\n\t7: Buy Supplies\n")
+            print(f"Health: {main_character.health}\nPace: {travel_stats.pace}\nRations: {travel_stats.rations}\nFatigue Level: {travel_stats.fatigued}\n\nYou may:\n\n\t1: Continue on trail\n\t2: Check Supplies\n\t3: Change Pace\n\t4: Change food rations\n\t5: Stop to rest\n\t6: Attempt to trade\n\t7: Buy Supplies\n\t8: Hunt in nearby forest\n")
             option_choice = input("What is your choice: ")
 
             if option_choice.strip() == "1":
                 def start_traveling():
-                    random_distance_roll = random.randint(10, 50)
+                    # They started traveling so make sure they can't trade or go to stores
+                    # that they left while continuing on the trail
+                    travel_occurances.shop_nearby = False
+                    travel_occurances.traveler_nearby = False
+                    travel_occurances.forest_nearby = False
+                    
+                    # Travel faster or slower based on pace
+                    if travel_stats.pace == "steady":
+                        random_distance_roll = random.randint(10, 50)
+                    if travel_stats.pace == "strenuous":
+                        random_distance_roll = random.randint(50, 75)
+                        # Have a chance of getting sick while in this pace
+                        sick_roll = random.randint(1, 6)
+                        if sick_roll == 1:
+                            main_character.health = "sick"
+                            main_character.days_to_heal += 2
+                            print("You got sick from sleep deprivation!")
+                            print("Hint: To lower the chances of getting sick this way, consider changing your pace")
+                            input("Type something to continue: ")
+                        
+                    if travel_stats.pace == "grueling":
+                        random_distance_roll = random.randint(100, 150)
+                        # Have a chance of getting sick while in this pace
+                        sick_roll = random.randint(1, 4)
+                        if sick_roll == 1:
+                            main_character.health = "sick"
+                            main_character.days_to_heal += 2
+                            print("You got sick from sleep deprivation!")
+                            print("Hint: To lower the chance of getting sick this way, consider changing your pace")
+                            input("Type something to continue: ")
+                    
+
                     
                     if travel_stats.distance_left > random_distance_roll:
                         travel_stats.distance_left -= random_distance_roll
@@ -136,11 +167,11 @@ def Start_Game():
                             print("You should rest. If you continue, you will get sick!")
                             input("Type something to continue: ")
                         elif travel_stats.fatigued == 8:
-                            print("You got sick! Rest or you may die!")
+                            print("You got sick! Rest or you may die of sleep deprivation!")
                             main_character.health = "sick"
-                            main_character.days_to_heal = 2
+                            main_character.days_to_heal += 2
                             input("Type something to continue: ")
-                        elif travel_stats.fatigued == 9:
+                        elif travel_stats.fatigued == 11:
                             print("You died of sleep deprivation!")
                             print("GAME OVER")
                             input("Type something to continue: ")
@@ -166,11 +197,56 @@ def Start_Game():
                     nearby_events_roll = random.randint(1, 3)
                     bad_roll1 = random.randint(1, 5)
 
-                    
 
+                    # Lose food as you travel
+                    if travel_stats.rations == "filling":
+                        # Make sure they have enough food
+                        if supplies.pounds_of_food >= 25:
+                            supplies.pounds_of_food -= 25
+                        else:
+                            print("You died of starvation!")
+                            print("GAME OVER")
+                            input("Type something to continue: ")
+                            quit()
+                    if travel_stats.rations == "meager":
+                        # Make sure they have enough food
+                        if supplies.pounds_of_food >= 10:
+                            supplies.pounds_of_food -= 10
+                            # A small chance that you can get sick
+                            sick_roll = random.randint(1, 5)
+                            if sick_roll == 1:
+                                print("You got sick!")
+                                main_character.health = "sick"
+                                main_character.days_to_heal += 2
+                                print("To lower the chance of getting sick! Keep the rations at \"filling\"")
+                                input("Type something to continue: ")
+                        else:
+                            print("You died of starvation!")
+                            print("GAME OVER")
+                            input("Type something to continue: ")
+                            quit()
+                    if travel_stats.rations == "bare bones":
+                        # Make sure they have enough food
+                        if supplies.pounds_of_food >= 5:
+                            supplies.pounds_of_food -= 5
+                            sick_roll = random.randint(1, 3)
+                            if sick_roll == 1:
+                                print("You got sick!")
+                                main_character.health = "sick"
+                                main_character.days_to_heal += 2
+                                print("To lower the chances of getting sick, keep the rations at \"filling\" or \"meager\"")
+                                input("Type something to continue: ")
+                        else:
+                            print("You died of starvation!")
+                            print("GAME OVER")
+                            input("Type something to continue: ")
+                            quit()
+                    
+                    
                     if good_roll == 1:
                         print("You found a traveler who is willing to sell some items to you!")
                         travel_occurances.traveler_nearby = True
+                        input("Type something to continue: ")
                     
                     if nearby_events_roll == 1:
                         # This will be for coming to a nearby travler, or finding a forest to hunt in
@@ -187,6 +263,9 @@ def Start_Game():
                             else:
                                 # Forest
                                 travel_occurances.forest_nearby = True
+                                print("There's a forest nearby!")
+                                print("You can stop to hunt and use a day, or you can continue on the trail...")
+                                input("Type something to continue: ")
 
                     if bad_roll1 == 1:
                         bad_roll2 = random.randint(2, 5)
@@ -207,7 +286,7 @@ def Start_Game():
                             # Someone gets sick
                             if main_character.health == "healthy":
                                 main_character.health = "sick"
-                                main_character.days_to_heal = 3
+                                main_character.days_to_heal += 3
                             # If already sick, die
                             else:
                                 print("You died of sickness!")
@@ -313,7 +392,7 @@ def Start_Game():
                                 elif random_loss == 3:
                                     # Loss of Money
                                     # A roll on how much they lost
-                                    money_lost = random.randint(10, 50)
+                                    money_lost = random.randint(50, 100)
                                     # Make sure they don't lose more than they have
                                     if money_lost >= supplies.money_left:
                                         supplies.money_left = 0
@@ -321,7 +400,7 @@ def Start_Game():
                                         input("Type something to continue: ")
                                     else:
                                         supplies.money_left -= money_lost
-                                        print(f"You lost ${money_lost}!")
+                                        print(f"You dropped ${money_lost} while crossing the river!")
                                         print(f"You still have ${supplies.money_left} left!")
                                         input("Type something to continue: ")
                             
@@ -391,7 +470,6 @@ def Start_Game():
                             
                             input("Type something to continue: ")
 
-
             elif option_choice.strip() == "2":
                 # Check Supplies: Check "Supplies.png" for more details
                 os.system("cls clear")
@@ -453,7 +531,14 @@ def Start_Game():
             elif option_choice.strip() == "5":
                 # Stop to rest: Check "Rest Options.png" for more details
                 os.system("cls clear")
-                if main_character.days_to_heal >= 1:
+                if main_character.days_to_heal >= 6:
+                    os.system("cls clear")
+                    print("You died because you never recovered from your past illnesses!")
+                    print("GAME OVER")
+                    input("Type something to continue: ")
+                    quit()
+                
+                elif main_character.days_to_heal >= 1:
                     if main_character.days_to_heal > 1:
                         main_character.days_to_heal -= 1
                         print("You healed yourself by resting!")
@@ -481,7 +566,21 @@ def Start_Game():
                 # Attempt to trade: Check "Attempt to Trade Options.png" for more details
                 os.system("cls clear")
                 if travel_occurances.traveler_nearby:
-                    which_trade = random.randint(1, 7)
+                    
+                    # Check to make sure a part isn't broken on wagon
+                    if travel_occurances.broken_wagon_wheels == False and travel_occurances.broken_wagon_axles == False and travel_occurances.broken_wagon_tongues == False:
+                        which_trade = random.randint(1, 7)
+                    else:
+                        # Check which part of the wagon is broken
+                        if travel_occurances.broken_wagon_wheels:
+                            # Makes traveler sell wagon wheels
+                            which_trade = 4
+                        if travel_occurances.broken_wagon_tongues:
+                            # Makes traveler sell wagon axles
+                            which_trade = 5
+                        if travel_occurances.broken_wagon_axles:
+                            # Makes traveler sell wagon tongues
+                            which_trade = 6
                     if main_character.profession != "Banker":
                         discount_roll = random.randint(1, 5)
                         if discount_roll == 1:
@@ -627,7 +726,7 @@ def Start_Game():
                         elif discount:
                             def buy_bullets_traveler_discount():
                                 print("I will sell you boxes of ammunition with a discount!")
-                                print("I will sell you a set of clothes for 1.00", end="\n\n")
+                                print("I will sell you a box of ammunition for 1.00", end="\n\n")
                                 how_many = input("How many do you want to buy?: ")
 
                                 try:
@@ -1031,6 +1130,40 @@ def Start_Game():
                         input("Please type something to continue: ")
 
                 buy_supplies_option()
+            
+            elif option_choice.strip() == "8":
+                # Clean up the terminal (Clears it)
+                os.system("cls clear")
+                
+                # Check if forest is nearby
+                if travel_occurances.forest_nearby == True:
+                    # Checks if they have any bullets to hunt
+                    if supplies.ammunition > 0:
+                        print("You go hunting for animals nearby...")
+                        # Come back with random amount of food
+                        hunting_food = random.randint(50, 100)
+                        supplies.pounds_of_food += hunting_food
+                        # Lose a random amount of ammunition
+                        ammunition_lost = random.randint(5, 25)
+                        # If you lose more ammo than you have, set the amount of ammunition to 0
+                        if ammunition_lost >= supplies.ammunition:
+                            supplies.ammunition = 0
+                            print("You lost all of your ammunition while hunting!")
+                        else:
+                            supplies.ammunition -=  ammunition_lost
+                            print(f"You lost {ammunition_lost} bullets while hunting, {supplies.ammunition} ammunition left!")
+                        print(f"You won {hunting_food} pounds of food while hunting!")
+                        print(f"You now have {supplies.pounds_of_food} pounds of food!")
+                        print(f"You lost {ammunition_lost} bullets while hunting, {supplies.ammunition} ammunition left!")
+                        input("Type something to continue: ")
+                    # If they don't have any bullets to hunt
+                    else:
+                        print("You don't have any ammunition to hunt with...")
+                        input("Type something to continue: ")
+                else:
+                    print("There is not a forest nearby to hunt in...")
+                    input("Type something to continue: ")
+                    
     
     Choose_Profession()
 
