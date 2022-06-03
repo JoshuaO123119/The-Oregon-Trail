@@ -183,7 +183,7 @@ def Start_Game():
                             quit()
                         
                     elif travel_stats.distance_left <= random_distance_roll:
-                        print("You beat the game! You walked to your destination!")
+                        print("You beat the game! You went to your destination!")
                         print("YOU WIN!!!")
                         input("Type something to continue: ")
                         quit()
@@ -283,10 +283,17 @@ def Start_Game():
                             
 
                     if bad_roll1 == 1:
-                        bad_roll2 = random.randint(2, 5)
+                        bad_roll2 = random.randint(1, 6)
                         
+                        if bad_roll2 == 1:
+                            # Worn out clothes
+                            if supplies.sets_of_clothing >= 1:
+                                supplies.sets_of_clothing -= 1
+                                print("A set of your clothes got ripped while traveling!")
+                                print(f"You lost 1 set of clothing and have {supplies.sets_of_clothing} sets of clothing left")
+                                input("Type something to continue: ")
                         
-                        if bad_roll2 == 2:
+                        elif bad_roll2 == 2:
                             # Lose some food
                             lose_food_roll = random.randint(10, 30)
                             
@@ -431,11 +438,25 @@ def Start_Game():
                                         print(f"You dropped ${money_lost} while crossing the river!")
                                         print(f"You still have ${supplies.money_left} left!")
                                         input("Type something to continue: ")
+                            elif bad_roll2 == 6:
+                                # Injured oxen
+                                print("One of your oxen got injured!")
+                                if supplies.oxen >= 1:
+                                    supplies.oxen -= 1
+                                    print("You replaced one of your injured oxen with another!")
+                                    print("You continue along the trail.")
+                                    input("Type something to continue: ")
+                                elif supplies.oxen == 0:
+                                    travel_occurances.injured_ox = True
+                                    print("You don't have enough wagon tongues to replace the broken one!")
+                                    print("You can wait for a traveler nearby to pass!")
+                                    input("Type something to continue: ")
                             
-                if travel_occurances.broken_wagon_wheels == False and travel_occurances.broken_wagon_axles == False and travel_occurances.broken_wagon_tongues == False:
+                # Checks if they have enough supplies to continue
+                if travel_occurances.broken_wagon_wheels == False and travel_occurances.broken_wagon_axles == False and travel_occurances.broken_wagon_tongues == False and supplies.sets_of_clothing >= 1 and supplies.oxen >= 1:
                         start_traveling()
                 else:
-                    # If a part of their wagon broke
+                    # If a part of their wagon broke, injured ox, or ripped clothing
                     if travel_occurances.broken_wagon_wheels == True:
                         if supplies.wagon_wheels >= 1:
                             supplies.wagon_wheels -= 1
@@ -497,6 +518,33 @@ def Start_Game():
                                 print("Keep trying until a new traveler comes!", end="\n\n")
                             
                             input("Type something to continue: ")
+                    elif supplies.sets_of_clothing == 0:
+                        new_traveler = random.randint(1, 2)
+                        print("You don't have enough sets of clothing to continue.")
+                        print("Keep trying until a traveler comes nearby!", end="\n\n")
+
+                        if new_traveler == 1:
+                            print("A travler comes nearby and greets you", end="\n\n")
+                            travel_occurances.traveler_nearby = True
+                        
+                        else:
+                            print("Keep trying until a new traveler comes!", end="\n\n")
+                        
+                        input("Type something to continue: ")
+                    
+                    elif supplies.oxen == 0:
+                        new_traveler = random.randint(1, 2)
+                        print("You don't have enough oxen to continue.")
+                        print("Keep trying until a traveler comes nearby!", end="\n\n")
+
+                        if new_traveler == 1:
+                            print("A travler comes nearby and greets you", end="\n\n")
+                            travel_occurances.traveler_nearby = True
+                        
+                        else:
+                            print("Keep trying until a new traveler comes!", end="\n\n")
+                        
+                        input("Type something to continue: ")
 
             elif option_choice.strip() == "2":
                 # Check Supplies: Check "Supplies.png" for more details
@@ -597,19 +645,25 @@ def Start_Game():
                 if travel_occurances.traveler_nearby:
                     
                     # Check to make sure a part isn't broken on wagon
-                    if travel_occurances.broken_wagon_wheels == False and travel_occurances.broken_wagon_axles == False and travel_occurances.broken_wagon_tongues == False:
+                    if travel_occurances.broken_wagon_wheels == False and travel_occurances.broken_wagon_axles == False and travel_occurances.broken_wagon_tongues == False and supplies.sets_of_clothing >= 1 and supplies.oxen >= 1:
                         which_trade = random.randint(1, 7)
                     else:
                         # Check which part of the wagon is broken
                         if travel_occurances.broken_wagon_wheels:
                             # Makes traveler sell wagon wheels
                             which_trade = 4
-                        if travel_occurances.broken_wagon_tongues:
+                        elif travel_occurances.broken_wagon_tongues:
                             # Makes traveler sell wagon axles
                             which_trade = 5
-                        if travel_occurances.broken_wagon_axles:
+                        elif travel_occurances.broken_wagon_axles:
                             # Makes traveler sell wagon tongues
                             which_trade = 6
+                        elif supplies.sets_of_clothing == 0:
+                            # Makes traveler sell sets of clothes
+                            which_trade = 2
+                        elif supplies.oxen == 0:
+                            # Makes traveler sell oxen
+                            which_trade = 1
                     
                     # If player is banker, then they get lower trade costs
                     if which_trade == 1:
@@ -1167,7 +1221,7 @@ def Start_Game():
                             hunting_food = random.randint(50, 100)
                         # If they are a farmer, they come back with more food, (Profession Perk)
                         else:
-                            hunting_food = random.randint(50, 100)
+                            hunting_food = random.randint(150, 250)
                             farmer_perk = random.randint(15, 50)
                             supplies.pounds_of_food += farmer_perk
                         
