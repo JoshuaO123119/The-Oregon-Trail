@@ -1,6 +1,5 @@
 import os
 import random
-
 os.system("title The Oregon Trail")
 
 # A class that has info about the character you play so you can get started.
@@ -54,7 +53,7 @@ class travel_occurances:
 
 main_character = main_character(profession1="none", skill_sets="none", start_money=0, difficulty="none", health="healthy", days_to_heal=0, discount_perk=False)
 travel_stats = travel_stats(pace="steady", rations="filling", distance_left=2000, fatigued=0)
-supplies = supplies(oxen=1, sets_of_clothing=0, ammunition=0, wagon_wheels=0, wagon_axles=0, wagon_tongues=0, pounds_of_food=500, money_left="unkown")
+supplies = supplies(oxen=0, sets_of_clothing=0, ammunition=0, wagon_wheels=0, wagon_axles=0, wagon_tongues=0, pounds_of_food=0, money_left="unkown")
 travel_occurances = travel_occurances(traveler_nearby=False, forest_nearby=False, shop_nearby=False, broken_wagon_wheels=False, broken_wagon_axles=False, broken_wagon_tongues=False, injured_ox=False)
 
 def Start_Game():
@@ -68,7 +67,6 @@ def Start_Game():
     # That give different advantages.
 
     def Choose_Profession():
-            os.system("cls clear")
             print("What do you want your profession to be?")
             profession_choice = input("Banker, Carpenter, or Farmer: ")
 
@@ -125,7 +123,7 @@ def Start_Game():
         
         while game_running:
             os.system("cls clear")
-            print(f"Health: {main_character.health}\nPace: {travel_stats.pace}\nRations: {travel_stats.rations}\nFatigue Level: {travel_stats.fatigued}\n\nYou may:\n\n\t1: Continue on trail\n\t2: Check Supplies\n\t3: Change Pace\n\t4: Change food rations\n\t5: Stop to rest\n\t6: Attempt to trade\n\t7: Buy Supplies\n\t8: Hunt in nearby forest\n")
+            print(f"Distance To Travel: {travel_stats.distance_left}\nHealth: {main_character.health}\nPace: {travel_stats.pace}\nRations: {travel_stats.rations}\nFatigue Level: {travel_stats.fatigued}\n\nYou may:\n\n\t1: Continue on trail\n\t2: Check Supplies\n\t3: Change Pace\n\t4: Change food rations\n\t5: Stop to rest\n\t6: Attempt to trade\n\t7: Buy Supplies\n\t8: Hunt in nearby forest\n")
             option_choice = input("What is your choice: ")
 
             if option_choice.strip() == "1":
@@ -165,8 +163,6 @@ def Start_Game():
                     if travel_stats.distance_left > random_distance_roll:
                         travel_stats.distance_left -= random_distance_roll
                         travel_stats.fatigued += 1
-                        # Let the user know something is happening
-                        print(f"You continue down the trail and travel {random_distance_roll} miles...")
                         
                         if travel_stats.fatigued == 7:
                             print("You should rest. If you continue, you will get sick!")
@@ -195,6 +191,8 @@ def Start_Game():
                     print(f"Your Health: {main_character.health}")
                     print(f"Your rations: {travel_stats.rations}")
                     print(f"Fatigue Level: {travel_stats.fatigued}", end="\n\n")
+                    # Let the user know something is happening
+                    print(f"You continue down the trail and travel {random_distance_roll} miles...")
                     input("Type something to continue: ")
 
                     # Bad and Good event rolls
@@ -405,8 +403,8 @@ def Start_Game():
                                         input("Type something to continue: ")
                                     else:
                                         supplies.ammunition -= ammunition_lost
-                                        print(f"You lost {ammunition_lost} boxes of ammunition!")
-                                        print(f"You have {supplies.ammunition} boxes of ammunition left!")
+                                        print(f"You lost {ammunition_lost} bullets!")
+                                        print(f"You have {supplies.ammunition} bullets left!")
                                         input("Type something to continue: ")
                                     
                                 elif random_loss == 2:
@@ -467,14 +465,11 @@ def Start_Game():
                         else:
                             new_traveler = random.randint(1, 2)
                             print("You don't have enough wagon wheels to continue.")
-                            print("Keep trying until a traveler comes nearby!", end="\n\n")
+                            print("\nKeep trying until a traveler comes nearby!", end="\n\n")
 
                             if new_traveler == 1:
                                 print("A traveler comes nearby and greets you", end="\n\n")
                                 travel_occurances.traveler_nearby = True
-                            
-                            else:
-                                print("Keep trying until a new traveler comes!", end="\n\n")
                             
                             input("Type something to continue: ")
                     
@@ -488,14 +483,11 @@ def Start_Game():
                         else:
                             new_traveler = random.randint(1, 2)
                             print("You don't have enough wagon axles to continue.")
-                            print("Keep trying until a traveler comes nearby!", end="\n\n")
+                            print("\nKeep trying until a traveler comes nearby!", end="\n\n")
 
                             if new_traveler == 1:
                                 print("A travler comes nearby and greets you", end="\n\n")
                                 travel_occurances.traveler_nearby = True
-                            
-                            else:
-                                print("Keep trying until a new traveler comes!", end="\n\n")
                             
                             input("Type something to continue: ")
                     elif travel_occurances.broken_wagon_tongues == True:
@@ -508,41 +500,32 @@ def Start_Game():
                         else:
                             new_traveler = random.randint(1, 2)
                             print("You don't have enough wagon tongues to continue.")
-                            print("Keep trying until a traveler comes nearby!", end="\n\n")
+                            print("\nKeep trying until a traveler comes nearby!", end="\n\n")
 
                             if new_traveler == 1:
                                 print("A travler comes nearby and greets you", end="\n\n")
                                 travel_occurances.traveler_nearby = True
                             
-                            else:
-                                print("Keep trying until a new traveler comes!", end="\n\n")
-                            
                             input("Type something to continue: ")
                     elif supplies.sets_of_clothing == 0:
                         new_traveler = random.randint(1, 2)
                         print("You don't have enough sets of clothing to continue.")
-                        print("Keep trying until a traveler comes nearby!", end="\n\n")
+                        print("\nKeep trying until a traveler comes nearby!", end="\n\n")
 
                         if new_traveler == 1:
                             print("A travler comes nearby and greets you", end="\n\n")
                             travel_occurances.traveler_nearby = True
-                        
-                        else:
-                            print("Keep trying until a new traveler comes!", end="\n\n")
                         
                         input("Type something to continue: ")
                     
                     elif supplies.oxen == 0:
                         new_traveler = random.randint(1, 2)
                         print("You don't have enough oxen to continue.")
-                        print("Keep trying until a traveler comes nearby!", end="\n\n")
+                        print("\nKeep trying until a traveler comes nearby!", end="\n\n")
 
                         if new_traveler == 1:
                             print("A travler comes nearby and greets you", end="\n\n")
                             travel_occurances.traveler_nearby = True
-                        
-                        else:
-                            print("Keep trying until a new traveler comes!", end="\n\n")
                         
                         input("Type something to continue: ")
 
@@ -778,7 +761,7 @@ def Start_Game():
                         os.system("cls clear")
                         if main_character.discount_perk != True:
                             def buy_bullets_traveler():
-                                print("I will sell you boxes of ammunition for 2.00 each", end="\n\n")
+                                print("I will sell you ammunition for 2.00 each", end="\n\n")
                                 how_many = input("How many do you want to buy?: ")
 
                                 try:
@@ -1047,7 +1030,7 @@ def Start_Game():
                         wagon_tongues_cost = 10.00
                         food_cost = 0.20
                         
-                        print(f"You may buy:\n\n\t1. Oxen\t\t\t20.00 per ox\t\tYou have: {supplies.oxen}\n\t2. Clothing\t\t10.00 per set\t\tYou have: {supplies.sets_of_clothing}\n\t3. Ammunition\t\t2.00 per box\t\tYou have: {supplies.ammunition}\n\t4. Wagon wheels\t\t10.00 per wheel\t\tYou have: {supplies.wagon_wheels}\n\t5. Wagon axles\t\t10.00 per axle\t\tYou have: {supplies.wagon_axles}\n\t6. Wagon Tongues\t10.00 per tongue\tYou have: {supplies.wagon_tongues}\n\t7. Food\t\t\t0.20 per pound\t\tYou have: {supplies.pounds_of_food}\n\t8. Leave Store\n\n")
+                        print(f"You may buy:\n\n\t1. Oxen\t\t\t20.00 per ox\t\tYou have: {supplies.oxen}\n\t2. Clothing\t\t10.00 per set\t\tYou have: {supplies.sets_of_clothing}\n\t3. Ammunition\t\t2.00 per bullet\t\tYou have: {supplies.ammunition}\n\t4. Wagon wheels\t\t10.00 per wheel\t\tYou have: {supplies.wagon_wheels}\n\t5. Wagon axles\t\t10.00 per axle\t\tYou have: {supplies.wagon_axles}\n\t6. Wagon Tongues\t10.00 per tongue\tYou have: {supplies.wagon_tongues}\n\t7. Food\t\t\t0.20 per pound\t\tYou have: {supplies.pounds_of_food}\n\t8. Leave Store\n\n")
                         print(f"You have ${supplies.money_left} to spend.")
                         buy_supplies_number = input("Which number: ")
 
