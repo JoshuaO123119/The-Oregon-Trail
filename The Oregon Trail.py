@@ -197,7 +197,7 @@ def Start_Game():
 
                     # Bad and Good event rolls
                     good_roll = random.randint(1, 5)
-                    nearby_events_roll = random.randint(1, 3)
+                    nearby_events_roll = random.randint(1, 6)
                     bad_roll1 = random.randint(1, 5)
 
                     
@@ -288,7 +288,7 @@ def Start_Game():
                             if supplies.sets_of_clothing >= 1:
                                 supplies.sets_of_clothing -= 1
                                 print("A set of your clothes got ripped while traveling!")
-                                print(f"You lost 1 set of clothing and have {supplies.sets_of_clothing} sets of clothing left")
+                                print(f"You lost 1 set of clothing and have {supplies.sets_of_clothing} set(s) of clothing left")
                                 input("Type something to continue: ")
                         
                         elif bad_roll2 == 2:
@@ -600,12 +600,21 @@ def Start_Game():
                 
                 elif main_character.days_to_heal >= 1:
                     if main_character.days_to_heal > 1:
+                        # Eat a random amount of food
+                        food_eat_roll = random.randint(5, 15)
+                        # Checking if the amount of food they lose is greater than how much they have
+                        if food_eat_roll >= supplies.pounds_of_food:
+                            food_eat_roll = supplies.pounds_of_food
+                        
+                        supplies.pounds_of_food -= food_eat_roll
                         main_character.days_to_heal -= 1
                         print("You healed yourself by resting!")
                         print(f"You have {main_character.days_to_heal} days left to heal until you're healthy")
+                        print(f"You spend a day healing, you eat {food_eat_roll} pounds of food")
+                        print(f"You have {supplies.pounds_of_food} pounds of food left")
                         input("Type something to continue: ")
                     elif main_character.days_to_heal == 1:
-                        main_character.days_to_heal == 0
+                        main_character.days_to_heal = 0
                         main_character.health = "healthy"
                         print(f"You healed yourself fully, you're now healthy!")
                         input("Type something to continue: ")
