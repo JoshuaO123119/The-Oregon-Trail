@@ -9,3 +9,4 @@ I ran into some challenges while making this, and if you have any suggestions or
 To install and run the project, all you have to do is download the file "The Oregon Trail.py" and run it by double clicking on the file or use python3 command in terminal.
 
 **This project requires the modules os and random. You will need python 3.8.3 or higher**
+**Also note that the file "The-Oregon-Trail-Linux.py" was only tested on Ubuntu**
