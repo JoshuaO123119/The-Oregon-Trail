@@ -736,7 +736,7 @@ def Start_Game():
                                         input("Type something to continue: ")
                                 except:
                                     input("That isn't a valid answer, please try again: ")
-                                    buy_clothes_traveler
+                                    buy_clothes_traveler()
 
                             buy_clothes_traveler()
                         elif main_character.discount_perk:
