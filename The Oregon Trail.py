@@ -1,7 +1,18 @@
 import os
 import random
-os.system("title The Oregon Trail")
 
+"""Recreation of "The Oregon Trail Game"
+    TODO: 
+        1. Write a save function to save all stats
+        2. Write a delete save function to remove the save data
+        3. Write a load function to load all stats and "continue" the game
+        4. Write a function to check if save file is there, otherwise 
+        create file with no save data
+        5. Playtest game to check for anymore bugs or events that occur to often or less
+"""
+
+
+os.system("title The Oregon Trail")
 # A class that has info about the character you play so you can get started.
 class main_character:
     def __init__(self, profession1, skill_sets, start_money, difficulty, health, days_to_heal, discount_perk):
@@ -17,7 +28,7 @@ class main_character:
 
 # A class that helps with stats to help you with traveling to know if you should make desperate changes.
 class travel_stats:
-    def __init__(self, pace, rations, distance_left, fatigued):
+    def __init__(self, pace, rations, distance_left, fatigued, days_traveled):
         self.pace = pace
         self.rations = rations
         self.distance_left = distance_left
@@ -26,6 +37,7 @@ class travel_stats:
         # Fatigued = 8 : Sick, desperately needs sleep
         # Fatigued = 11 : Dies
         self.fatigued = fatigued
+        self.days = days_traveled
 # A class that shows information on what items you have and how much. 
 class supplies:
     def __init__(self, oxen, sets_of_clothing, ammunition, wagon_wheels, wagon_axles, wagon_tongues, pounds_of_food, money_left):
@@ -52,7 +64,7 @@ class travel_occurances:
 
 
 main_character = main_character(profession1="none", skill_sets="none", start_money=0, difficulty="none", health="healthy", days_to_heal=0, discount_perk=False)
-travel_stats = travel_stats(pace="steady", rations="filling", distance_left=2000, fatigued=0)
+travel_stats = travel_stats(pace="steady", rations="filling", distance_left=2000, fatigued=0, days_traveled=0)
 supplies = supplies(oxen=0, sets_of_clothing=0, ammunition=0, wagon_wheels=0, wagon_axles=0, wagon_tongues=0, pounds_of_food=0, money_left="unkown")
 travel_occurances = travel_occurances(traveler_nearby=False, forest_nearby=False, shop_nearby=False, broken_wagon_wheels=False, broken_wagon_axles=False, broken_wagon_tongues=False, injured_ox=False)
 
@@ -163,6 +175,7 @@ def Start_Game():
                     if travel_stats.distance_left > random_distance_roll:
                         travel_stats.distance_left -= random_distance_roll
                         travel_stats.fatigued += 1
+                        travel_stats.days += 1
                         
                         if travel_stats.fatigued == 7:
                             print("You should rest. If you continue, you will get sick!")
@@ -179,8 +192,7 @@ def Start_Game():
                             quit()
                         
                     elif travel_stats.distance_left <= random_distance_roll:
-                        print("You beat the game! You went to your destination!")
-                        print("YOU WIN!!!")
+                        print(f"You beat the game! You traveled to your destination in {travel_stats.days}!")
                         input("Type something to continue: ")
                         quit()
                     
@@ -191,6 +203,7 @@ def Start_Game():
                     print(f"Your Health: {main_character.health}")
                     print(f"Your rations: {travel_stats.rations}")
                     print(f"Fatigue Level: {travel_stats.fatigued}", end="\n\n")
+                    print(f"Total days went by: {travel_stats.days}")
                     # Let the user know something is happening
                     print(f"You continue down the trail and travel {random_distance_roll} miles...")
                     input("Type something to continue: ")
@@ -266,12 +279,12 @@ def Start_Game():
                         
                         if nearby == 1:
                             # Choose wether it's a traveler or forest to hunt in, and if unlucky nothing will happen
-                            travelerForestRoll = random.randint(1, 3)
+                            travelerForestRoll = random.randint(1, 5)
                             if travelerForestRoll == 1:
                                 # Town
                                 travel_occurances.traveler_nearby = True
                                 print("You found a nearby traveler who is willing to sell some items to you!")
-                            elif travelerForestRoll == 2:
+                            elif travelerForestRoll in [2, 3]:
                                 # Forest
                                 travel_occurances.forest_nearby = True
                                 print("There's a forest nearby!")
@@ -630,6 +643,7 @@ def Start_Game():
                     travel_stats.fatigued = 0
                     print(f"Your fatigue level is now {travel_stats.fatigued}")
                     input("Type something to continue: ")
+                travel_stats.days += 1
 
             elif option_choice.strip() == "6":
                 # Attempt to trade: Check "Attempt to Trade Options.png" for more details
