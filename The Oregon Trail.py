@@ -135,7 +135,7 @@ def Start_Game():
         
         while game_running:
             os.system("cls clear")
-            print(f"Distance To Travel: {travel_stats.distance_left}\nHealth: {main_character.health}\nPace: {travel_stats.pace}\nRations: {travel_stats.rations}\nFatigue Level: {travel_stats.fatigued}\n\nYou may:\n\n\t1: Continue on trail\n\t2: Check Supplies\n\t3: Change Pace\n\t4: Change food rations\n\t5: Stop to rest\n\t6: Attempt to trade\n\t7: Buy Supplies\n\t8: Hunt in nearby forest\n")
+            print(f"Distance To Travel: {travel_stats.distance_left}\nHealth: {main_character.health}\nPace: {travel_stats.pace}\nRations: {travel_stats.rations}\nFatigue Level: {travel_stats.fatigued}\nDays traveled: {travel_stats.days}\n\nYou may:\n\n\t1: Continue on trail\n\t2: Check Supplies\n\t3: Change Pace\n\t4: Change food rations\n\t5: Stop to rest\n\t6: Attempt to trade\n\t7: Buy Supplies\n\t8: Hunt in nearby forest\n")
             option_choice = input("What is your choice: ")
 
             if option_choice.strip() == "1":
@@ -202,8 +202,8 @@ def Start_Game():
                     print(f"Your pace: {travel_stats.pace}")
                     print(f"Your Health: {main_character.health}")
                     print(f"Your rations: {travel_stats.rations}")
-                    print(f"Fatigue Level: {travel_stats.fatigued}", end="\n\n")
-                    print(f"Total days went by: {travel_stats.days}")
+                    print(f"Fatigue Level: {travel_stats.fatigued}")
+                    print(f"Total days went by: {travel_stats.days}", end="\n\n")
                     # Let the user know something is happening
                     print(f"You continue down the trail and travel {random_distance_roll} miles...")
                     input("Type something to continue: ")
